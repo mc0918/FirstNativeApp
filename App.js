@@ -1,14 +1,18 @@
 import React from "react";
-import { Platform, StatusBar, StyleSheet, View, Text } from "react-native";
-import { AppLoading, Asset, Font, Icon } from "expo";
-import AppNavigator from "./navigation/AppNavigator";
+import { StyleSheet, View, Text, Animated } from "react-native";
+// import { AppLoading, Asset, Font, Icon } from "expo";
+// import AppNavigator from "./navigation/AppNavigator";
 import Weather from "./components/Weather";
 
+import { DangerZone } from "expo";
+const { Lottie } = DangerZone;
+
 import weatherKey from "./Config";
+// import weatherConditions from "./components/utils/WeatherConditions";
 
 export default class App extends React.Component {
   state = {
-    isLoadingComplete: false,
+    isLoading: true,
     temperature: 0,
     weatherCondition: null,
     error: null
@@ -36,18 +40,25 @@ export default class App extends React.Component {
       .then(res => res.json())
       .then(json => {
         console.log(json);
+        this.setState({
+          temperature: json.main.temp,
+          weatherCondition: json.weather[0].main,
+          isLoading: false
+        });
       });
   }
 
   render() {
-    const { isLoadingComplete } = this.state;
+    const { isLoading, weatherCondition, temperature } = this.state;
     return (
       <View style={styles.container}>
-        {isLoadingComplete ? (
-          <Text>Fetching Weather</Text>
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <Text style={styles.loadingText}>Fetching The Weather</Text>
+          </View>
         ) : (
           <View>
-            <Weather />
+            <Weather weather={weatherCondition} temperature={temperature} />
           </View>
         )}
       </View>
@@ -61,5 +72,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center"
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#FFFDE4"
+  },
+  loadingText: {
+    fontSize: 30
   }
 });
